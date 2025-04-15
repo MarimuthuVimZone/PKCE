@@ -25,6 +25,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.List;
 import java.util.UUID;
 
 @Configuration
@@ -110,7 +111,8 @@ public class AuthorizationServerConfig {
                        // .requestMatchers("/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
-
+               // .oauth2Login(Customizer.withDefaults())
+                .csrf(csrf->csrf.disable())
                 .formLogin(Customizer.withDefaults());
 
         return http.cors(Customizer.withDefaults()).build();
@@ -134,7 +136,8 @@ public class AuthorizationServerConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-        config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("*");
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
         return source;
