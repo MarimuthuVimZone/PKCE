@@ -10,8 +10,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
@@ -46,8 +50,8 @@ public class AuthorizationServerConfig {
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 //.redirectUri("https://oauthdebugger.com/debug")
                 // (Optional) Define scopes – add your desired scopes; here we use "read" as an example.
-                //.scope(OidcScopes.OPENID)
-               // .scope(OidcScopes.PROFILE)
+              //  .scope(OidcScopes.OPENID)
+             //   .scope(OidcScopes.PROFILE)
                 // Token settings: use reference token format (opaque token) as requested
 //                .tokenSettings(TokenSettings.builder()
 //                        .accessTokenFormat(OAuth2TokenFormat.REFERENCE)
@@ -65,6 +69,21 @@ public class AuthorizationServerConfig {
                 .build();
 
         return new InMemoryRegisteredClientRepository(registeredClient);
+    }
+
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        ClientRegistration registration = ClientRegistration.withRegistrationId("myclient")
+                .clientId("zhfkegazct")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://localhost:5173") // Or your appropriate redirect URI
+                .authorizationUri("http://localhost:8080/oauth2/authorize")
+                .tokenUri("http://localhost:8080/oauth2/token")
+                .scope("read")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .build();
+
+        return new InMemoryClientRegistrationRepository(registration);
     }
 
     @Bean
@@ -111,7 +130,7 @@ public class AuthorizationServerConfig {
                        // .requestMatchers("/oauth2/**").permitAll()
                         .anyRequest().authenticated()
                 )
-               // .oauth2Login(Customizer.withDefaults())
+                .oauth2Login(Customizer.withDefaults())
                 .csrf(csrf->csrf.disable())
                 .formLogin(Customizer.withDefaults());
 
